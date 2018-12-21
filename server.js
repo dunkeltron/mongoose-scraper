@@ -42,8 +42,8 @@ app.engine(
     })
 );
 
-require("./routes/apiRoutes.js")(app);
-require("./routes/htmlRoutes.js")(app);
+require("./routes/apiRoutes.js")(app,axios,cheerio);
+require("./routes/htmlRoutes.js")(app,axios,cheerio);
 
 app.listen(PORT, function() {
   console.log("App running on port " + PORT + "!");
