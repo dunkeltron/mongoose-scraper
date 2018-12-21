@@ -1,12 +1,16 @@
-<h1>Reddit Scraper</h1>
-
-<div id="burgerBlock" class="clearfix">
-
+<divclass= "row">
+    <h1>Reddit Scraper</h1>
+    <a href="/scrape" class="btn btn-primary ">Get Articles</a>
+</div>
+<div id="articleBlock" class="clearfix">
+    
     <div id="listBlock">
-        
+        {{#each articles}}
+        {{> articles/article}}
+        {{/each}}
+
     </div>
 </div>
-<h2>Add a burger</h2>
 <div class='create-block'>
-    
+
 </div>
