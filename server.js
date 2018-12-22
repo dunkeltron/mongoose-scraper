@@ -1,5 +1,4 @@
 var express = require("express");
-var exphbs = require("express-handlebars");
 var logger = require("morgan");
 var mongoose = require("mongoose");
 
@@ -33,17 +32,8 @@ app.use(express.json());
 // Make public a static folder
 app.use(express.static("public"));
 
-//amke handlebars our templating engine
-app.set("view engine", "handlebars");
-app.engine(
-    "handlebars",
-    exphbs({
-        defaultLayout: "main"
-    })
-);
-
+//routes
 require("./routes/apiRoutes.js")(app,axios,cheerio);
-require("./routes/htmlRoutes.js")(app,axios,cheerio);
 
 app.listen(PORT, function() {
   console.log("App running on port " + PORT + "!");
