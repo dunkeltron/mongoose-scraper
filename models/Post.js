@@ -30,7 +30,7 @@ var PostSchema = new Schema({
 });
 
 // This creates our model from the above schema, using mongoose's model method
-var Article = mongoose.model("Post", ArticleSchema);
+var Post = mongoose.model("Post", PostSchema);
 
 // Export the Article model
 module.exports = Post;
