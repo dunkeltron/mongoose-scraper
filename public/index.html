@@ -111,6 +111,7 @@
                 method: "GET",
                 url: "/populated/"+id
             }).then(function (data) {
+                var commentsArr = data.
                 displayComments(id,data);
             });
         }
