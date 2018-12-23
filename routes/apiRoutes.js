@@ -4,14 +4,45 @@ module.exports = function (app, axios, cheerio) {
     //get routes
     app.get("/posts", function (req, res) {
         db.Post.find({})
-            .then(function(data) {
+            .then(function (data) {
                 res.json(data);
-        });
+            });
     })
-
+    app.get("/populated/:id", function(req, res) {
+        // Using our Post model, "find" every Post in our db and populate them with any associated comments
+        db.Post.find({_id : req.params.id})
+          // Specify that we want to populate the retrieved libraries with any associated comments
+          .populate("comments")
+          .then(function(dbPost) {
+            // If any Libraries are found, send them to the client with any associated comments
+            res.json(dbPost);
+          })
+          .catch(function(err) {
+            // If an error occurs, send it back to the client
+            res.json(err);
+          });
+      });
     //post routes
+    app.post("/submit", function(req, res) {
+        // Create a new comment in the database
+        db.Comment.create({ title: req.body.title, body: req.body.body})
+          .then(function(dbComment) {
+            // If a Comment was created successfully, find one Post (there's only one) and push the new Comment's _id to the Post's `Comments` array
+            // { new: true } tells the query that we want it to return the updated Post -- it returns the original by default
+            // Since our mongoose query returns a promise, we can chain another `.then` which receives the result of the query
+            return db.Post.findOneAndUpdate({_id:req.body.postId}, { $push: { comments: dbComment._id } }, { new: true });
+          })
+          .then(function(dbPost) {
+            // If the Post was updated successfully, send it back to the client
+            res.json(dbPost);
+          })
+          .catch(function(err) {
+            // If an error occurs, send it back to the client
+            res.json(err);
+          });
+      });
     app.post("/post", function (req, res) {
-        db.Post.findOrCreate(req.body)
+        db.Post.create(req.body)
             .then(function (dbPost) {
                 // View the added result in the console
                 console.log(dbPost);
@@ -83,14 +114,11 @@ module.exports = function (app, axios, cheerio) {
                 //articlesList.push(result);
                 // Create a new Article using the `result` object built from scraping
                 db.Post.create(result)
-                    .then(function (dbPost) {
-                        // View the added result in the console
-                        console.log(dbPost);
-                    })
                     .catch(function (err) {
                         // If an error occurred, log it
                         console.log(err);
                     });
+
             });
 
 

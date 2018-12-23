@@ -2,12 +2,13 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Eat Da Burger!</title>
-    <link rel="stylesheet" href="/css/styles.css">
-    <script src="https://code.jquery.com/jquery.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.min.css" />
-
+    <meta charset="utf-8">
+    <title>Reddit Scraper</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
     <script src="/js/index.js"></script>
 </head>
 <style>
@@ -32,70 +33,155 @@
     }
 </style>
 
-<body class="container">
 
-    <div class="row">
-        <h1>Reddit Scraper</h1>
-        <a href="" class="btn btn-primary new-scrape">Get Articles</a>
-    </div>
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
+<body class="container">
+    <div class="modal " id="exampleModal" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                    <h5 class="modal-title" id="exampleModalLabel">Comments</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    ...
+                    <div class="comment-group">
+
+                    </div>
+                    <div class="form-group">
+                        <label for="comment-title-box">Give your comment a title.</label>
+                        <textarea class="form-control" id="comment-title-box" rows="1"></textarea>
+                        <label for="comment-body-box">Write Your comment.</label>
+                        <textarea class="form-control" id="comment-body-box" rows="3"></textarea>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
+                    <button type="button" class="btn btn-primary submit-comment-button">Post</button>
                 </div>
             </div>
         </div>
     </div>
-    <div id="articleBlock" class="clearfix">
+    <div class="row">
+        <h1>Reddit Scraper</h1>
+        <a href="" class="btn btn-primary new-scrape">Get Articles</a>
+    </div>
+
+    <div id="postBlock" class="clearfix">
 
         <div id="listBlock">
 
         </div>
     </div>
     <script>
+        $(document).ready(function () {
+            displayPosts();
+        });
+        $(".submit-comment-button").on("click", function () {
+            event.preventDefault();
+            var postID = $(".submit-comment-button").data("postid");
+            console.log((postID));
+            var text = $("#comment-body-box").val().trim();
+            var title = $("#comment-title-box").val().trim();
+            var comment = {};
+            comment.text = text;
+            comment.title = title;
+            //console.log(comment);
+            postComment(title, text, postID);
+                $(".comment-body-box").val("");
+                $(".comment-title-box").val("");
+            
+
+
+        });
+
+        function postComment(title, body, id) {
+            $.post("/submit", {
+                title: title,
+                body: body,
+                postId: id
+            }, function (result) {
+
+            }).then(populateComments(id));
+
+        }
+
+        function populateComments(id){
+            $.ajax({
+                method: "GET",
+                url: "/populated/"+id
+            }).then(function (data) {
+                displayComments(id,data);
+            });
+        }
+        function displayComments(id,data){
+            if(data){
+                data.forEach(element => {
+                    var comment = $("<div>"+element.title+"</div>");
+                    var body =  $("<div>"+element.body+"</div>");
+                    comment.append(body);
+                    $(".comment-group").append(comment);
+                })
+                
+            }
+
+        }
         $(".new-scrape").on("click", function () {
             event.preventDefault();
-            // $.getJSON("/scrape", function (data) {
-            //     // For each one
-            //     for (var i = 0; i < data.length; i++) {
-            //         // Display the apropos information on the page
-            //         console.log(data[i].title);
-
-            //     }
-            // });
             $.ajax({
                 method: "GET",
                 url: "/scrape"
             }).then(function (data) {
                 // For each one
-                console.log("data returned "+data);
-                // data.forEach(element => {
-                //     console.log(element.title);
+                //console.log("data returned " + data);
+                displayPosts();
 
-                //     // Display the apropos information on the page
-
-                //     var cardBody = $("<div></div>");
-                //     var cardTitle = $("<a></a>");
-                //     var cardTextHolder = $("<div></div>");
-                //     var cardText = $("<a></a>");
-                //     var modalButton = $("<button></button>")
-
-                // });
             });
 
         });
+        $(document).on('click', '.modalTrigger', function (event) {
+            event.preventDefault();
+            console.log(event.target);
+            //fill in the thinkgy
+            $('.submit-comment-button').data(
+                'postid', $('.modalTrigger').data("postid"));
+            
+        });
+
+        function displayPosts() {
+            $.ajax({
+                method: "GET",
+                url: "/posts"
+            }).then(function (data) {
+                data.forEach(element => {
+
+                    // Display the apropos information on the page
+                    //create necesary elements and stuff information in there
+                    var cardBody = $("<div></div>").addClass("card-body border border-success rounded");
+                    var cardTitle = $("<a></a>").addClass("no-gutters card-title").text(element.title)
+                    cardTitle.attr({
+                        'href': element.link,
+                        'target': "_blank"
+                    });
+                    var cardTextHolder = $("<div></div>").addClass("col-8");
+                    var cardText = $("<a></a>").addClass("card-text").text("Posted to " + element.subreddit);
+                    var modalButton = $("<button></button>").addClass("btn btn-success modalTrigger").text(
+                        "Leave a Comment!");
+                    modalButton.attr({
+                        'type': "button",
+                        'data-toggle': "modal",
+                        'data-target': "#exampleModal"
+                    })
+                    modalButton.data(
+                        'postid', element._id.toString());
+
+                    //append the elements in reverse stack order then append to page
+                    cardTextHolder.append(cardText);
+                    cardBody.append(cardTitle, cardTextHolder, modalButton);
+                    $("#listBlock").append(cardBody);
+                });
+            });
+        }
     </script>
 </body>
 
