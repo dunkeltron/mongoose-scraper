@@ -30,11 +30,12 @@ module.exports = function (app, axios, cheerio) {
             // If a Comment was created successfully, find one Post (there's only one) and push the new Comment's _id to the Post's `Comments` array
             // { new: true } tells the query that we want it to return the updated Post -- it returns the original by default
             // Since our mongoose query returns a promise, we can chain another `.then` which receives the result of the query
-            return db.Post.findOneAndUpdate({_id:req.body.postId}, { $push: { comments: dbComment._id } }, { new: true });
+            db.Post.findOneAndUpdate({_id:req.body.postId}, { $push: { comments: dbComment._id } }, { new: true });
+            return dbComment;
           })
-          .then(function(dbPost) {
-            // If the Post was updated successfully, send it back to the client
-            res.json(dbPost);
+          .then(function(dbComment) {
+            // If the Post was updated successfully, send the comment back to the client
+            res.json(dbComment);
           })
           .catch(function(err) {
             // If an error occurs, send it back to the client

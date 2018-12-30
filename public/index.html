@@ -45,7 +45,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    
+
                     <div class="form-group">
                         <label for="comment-title-box">Give your comment a title.</label>
                         <textarea class="form-control" id="comment-title-box" rows="1"></textarea>
@@ -84,50 +84,63 @@
             console.log((postID));
             var text = $("#comment-body-box").val().trim();
             var title = $("#comment-title-box").val().trim();
-            var comment = {};
-            comment.text = text;
-            comment.title = title;
             //console.log(comment);
             postComment(title, text, postID);
-                $(".comment-body-box").val("");
-                $(".comment-title-box").val("");
-            
+            $(".comment-body-box").val("");
+            $(".comment-title-box").val("");
+
 
 
         });
 
         function postComment(title, body, id) {
+            var element = {
+
+            };
             $.post("/submit", {
                 title: title,
                 body: body,
                 postId: id
             }, function (result) {
-
-            }).then(populateComments(id));
+                addCommentToModal(result)
+            });//.then(populateComments(id));
 
         }
 
-        function populateComments(id){
+        function populateComments(id) {
             $.ajax({
                 method: "GET",
-                url: "/populated/"+id
+                url: "/populated/" + id
             }).then(function (data) {
                 var commentsArr = data;
-                displayComments(id,data);
+                displayComments(id, data);
             });
         }
-        function displayComments(id,data){
-            if(data){
+        function displayComments(id, data) {
+            if (data) {
                 data[0].comments.forEach(element => {
-                    console.log(element);
-                    var comment = $("<div>").text(element.title);
-                    var body =  $("<div>").text(element.body);
-                    comment.append(body);
-                    $(".comment-group").append(comment);
-                })
-                
+                    addCommentToModal(element);
+                });
+
             }
 
+        }
+        function addCommentToModal(element) {
+            //console.log(element);
+            var comment = $("<div>").text(element.title);
+            var body = $("<div>").text(element.body);
+            var removeButton = $("<button>").attr({
+                "type": "button",
+                "class": "close",
+                "aria-label": "Close"
+            });
+            removeButton.addClass("remove");
+            var removeSpan = $("<span>").attr({ "aria-hidden": true }).text("X");
+            removeButton.append(removeSpan);
+            comment.append(body, removeButton);
+            var commentContainer = $("<div>").addClass(element._id, "comment-container");
+            commentContainer.append(comment);
+            $(".comment-group").append(commentContainer);
         }
         $(".new-scrape").on("click", function () {
             event.preventDefault();
@@ -142,13 +155,19 @@
             });
 
         });
+        //remove comment
+        $(document).on("click",'.remove',function(event){
+            console.log(event.target);
+        });
+
         $(document).on('click', '.modalTrigger', function (event) {
             event.preventDefault();
             console.log(event.target);
             //fill in the thinkgy
             $('.submit-comment-button').data(
                 'postid', $('.modalTrigger').data("postid"));
-            
+            populateComments($('.modalTrigger').data("postid"));
+
         });
 
         function displayPosts() {
