@@ -22,9 +22,18 @@ module.exports = function (app, axios, cheerio) {
             res.json(err);
           });
       });
+      app.get("/comments/:id",function(req,res){
+          db.Comment.find({_id : req.params.id}).then(function(dbComment){
+              console.log(dbComment);
+              res.json(dbComment);
+          })
+          .catch(function(err){
+              res.json(err);
+          });
+      });
     //post routes
+    //submit new comment and associate it with correct post.
     app.post("/submit", function(req, res) {
-        // Create a new comment in the database
         db.Comment.create({ title: req.body.title, body: req.body.body})
           .then(function(dbComment) {
             // If a Comment was created successfully, find one Post (there's only one) and push the new Comment's _id to the Post's `Comments` array
@@ -47,19 +56,6 @@ module.exports = function (app, axios, cheerio) {
             .then(function (dbPost) {
                 // View the added result in the console
                 console.log(dbPost);
-            })
-            .catch(function (err) {
-                // If an error occurred, log it
-                console.log(err);
-            });
-    });
-
-    //post comment
-    app.post("/comment", function (req, res) {
-        db.Comment.create(req.body)
-            .then(function (dbComment) {
-                // View the added result in the console
-                console.log(dbComment);
             })
             .catch(function (err) {
                 // If an error occurred, log it
@@ -130,6 +126,17 @@ module.exports = function (app, axios, cheerio) {
         });
 
 
+    });
+    //delete Route
+    app.delete("/comments/:id",function(req,res){
+        db.Comment.findByIdAndRemove(req.params.id,(err, todo)=>{
+            if(err) res.status(500).send(err);
+            const response = {
+                message: "Todo successfully deleted",
+                id:todo._id
+            };
+            return res.status(200).send(response);
+        });
     });
     //subreddit and post age
     //_1poyrkZ7g36PawDueRza-J whole post div
