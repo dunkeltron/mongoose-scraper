@@ -101,7 +101,6 @@
                 method: "GET",
                 url: "/populated/" + id
             }).then(function (data) {
-<<<<<<< HEAD
                 //the exoected return data is a single element array containing the
                 
                 if(data[0].comments){
@@ -109,11 +108,6 @@
                     displayComments(id, commentsArr);
                 }
                 
-=======
-                var postData = data;
-                console.log(postData);
-                displayComments(id, postData);
->>>>>>> 9db9acb7e9be198a0e62f225d6606b319f78ee15
             });
         }
         function displayComments(id, data) {
@@ -138,8 +132,8 @@
             });
             removeButton.addClass("remove float-right");
             removeButton.text("X");
-            var commentContainer = $("<div>").addClass(element._id, "comment-container");
-            commentContainer.append(comment,body,removeButton);
+            var commentContainer = $("<div>").addClass(element._id+" comment-container clearfix border border-gray rounded");
+            commentContainer.append(comment,body,removeButton,$("<br>"));
             $(".comment-group").append(commentContainer);
         }
         function displayPosts() {
@@ -158,7 +152,7 @@
                         'href': element.link,
                         'target': "_blank"
                     });
-                    var cardTextHolder = $("<div></div>").addClass("col-8 border border-success rounded clearfix");
+                    var cardTextHolder = $("<div></div>").addClass("col-8  clearfix");
                     var cardText = $("<a></a>").addClass("card-text").text("Posted to " + element.subreddit);
                     var modalButton = $("<button></button>").addClass("btn btn-success modalTrigger ").text(
                         "Leave a Comment!");
@@ -190,14 +184,9 @@
             var text = $("#comment-body-box").val().trim();
             var title = $("#comment-title-box").val().trim();
             //console.log(comment);
-<<<<<<< HEAD
             postComment(title, text, currentModalPostId);
             $("#comment-body-box").text("");
             $("#comment-title-box").text("");
-=======
-            postComment(title, text, postID);
-            //emptyForm();
->>>>>>> 9db9acb7e9be198a0e62f225d6606b319f78ee15
         });
         
         //make a new scrape then display posts.
