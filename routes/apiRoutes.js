@@ -9,12 +9,12 @@ module.exports = function (app, axios, cheerio) {
             });
     })
     app.get("/populated/:id", function(req, res) {
-        // Using our Post model, "find" every Post in our db and populate them with any associated comments
+        // Using our Post model, "find" a Post in our db and populate it with any associated comments
         db.Post.find({_id : req.params.id})
-          // Specify that we want to populate the retrieved libraries with any associated comments
+          // Specify that we want to populate the retrieved posts with any associated comments
           .populate("comments")
           .then(function(dbPost) {
-            // If any Libraries are found, send them to the client with any associated comments
+            // If any posts are found, send them to the client with any associated comments
             res.json(dbPost);
           })
           .catch(function(err) {
