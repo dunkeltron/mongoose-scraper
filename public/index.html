@@ -86,9 +86,7 @@
         
 
         function postComment(title, body, id) {
-            var element = {
-
-            };
+            
             $.post("/submit", {
                 title: title,
                 body: body,
@@ -103,8 +101,9 @@
                 method: "GET",
                 url: "/populated/" + id
             }).then(function (data) {
-                var commentsArr = data;
-                displayComments(id, data);
+                var postData = data;
+                console.log(postData);
+                displayComments(id, postData);
             });
         }
         function displayComments(id, data) {
@@ -148,7 +147,7 @@
                         'href': element.link,
                         'target': "_blank"
                     });
-                    var cardTextHolder = $("<div></div>").addClass("col-8");
+                    var cardTextHolder = $("<div></div>").addClass("col-8 border border-success rounded clearfix");
                     var cardText = $("<a></a>").addClass("card-text").text("Posted to " + element.subreddit);
                     var modalButton = $("<button></button>").addClass("btn btn-success modalTrigger").text(
                         "Leave a Comment!");
@@ -167,7 +166,10 @@
                 });
             });
         }
-
+        function emptyForm(){
+            $(".comment-body-box").text("");
+            $(".comment-title-box").text("");
+        }
         //event listeners
         $(".submit-comment-button").on("click", function () {
             event.preventDefault();
@@ -177,8 +179,7 @@
             var title = $("#comment-title-box").val().trim();
             //console.log(comment);
             postComment(title, text, postID);
-            $(".comment-body-box").val("");
-            $(".comment-title-box").val("");
+            //emptyForm();
         });
         //make a new scrape then display posts.
         $(".new-scrape").on("click", function () {
