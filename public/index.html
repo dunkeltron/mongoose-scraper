@@ -83,7 +83,7 @@
         $(document).ready(function () {
             displayPosts();
         });
-        
+        var currentModalPostId ="";
 
         function postComment(title, body, id) {
             var element = {
@@ -103,13 +103,18 @@
                 method: "GET",
                 url: "/populated/" + id
             }).then(function (data) {
-                var commentsArr = data;
-                displayComments(id, data);
+                //the exoected return data is a single element array containing the
+                
+                if(data[0].comments){
+                    var commentsArr = data[0].comments;
+                    displayComments(id, commentsArr);
+                }
+                
             });
         }
         function displayComments(id, data) {
             if (data) {
-                data[0].comments.forEach(element => {
+                data.forEach(element => {
                     addCommentToModal(element);
                 });
 
@@ -134,6 +139,7 @@
             $(".comment-group").append(commentContainer);
         }
         function displayPosts() {
+            var i =0;
             $.ajax({
                 method: "GET",
                 url: "/posts"
@@ -150,12 +156,13 @@
                     });
                     var cardTextHolder = $("<div></div>").addClass("col-8");
                     var cardText = $("<a></a>").addClass("card-text").text("Posted to " + element.subreddit);
-                    var modalButton = $("<button></button>").addClass("btn btn-success modalTrigger").text(
+                    var modalButton = $("<button></button>").addClass("btn btn-success modalTrigger ").text(
                         "Leave a Comment!");
                     modalButton.attr({
                         'type': "button",
                         'data-toggle': "modal",
-                        'data-target': "#exampleModal"
+                        'data-target': "#exampleModal",
+                        'id':element._id.toString()
                     })
                     modalButton.data(
                         'postid', element._id.toString());
@@ -163,7 +170,9 @@
                     //append the elements in reverse stack order then append to page
                     cardTextHolder.append(cardText);
                     cardBody.append(cardTitle, cardTextHolder, modalButton);
+                    cardBody.attr({'id':i+"-post"});
                     $("#listBlock").append(cardBody);
+                    i++;
                 });
             });
         }
@@ -171,15 +180,14 @@
         //event listeners
         $(".submit-comment-button").on("click", function () {
             event.preventDefault();
-            var postID = $(".submit-comment-button").data("postid");
-            console.log((postID));
             var text = $("#comment-body-box").val().trim();
             var title = $("#comment-title-box").val().trim();
             //console.log(comment);
-            postComment(title, text, postID);
-            $(".comment-body-box").val("");
-            $(".comment-title-box").val("");
+            postComment(title, text, currentModalPostId);
+            $("#comment-body-box").text("");
+            $("#comment-title-box").text("");
         });
+        
         //make a new scrape then display posts.
         $(".new-scrape").on("click", function () {
             event.preventDefault();
@@ -211,15 +219,38 @@
         //display the modal with the corresponding post and comment data
         $(document).on('click', '.modalTrigger', function (event) {
             event.preventDefault();
-            console.log(event.target);
-            //fill in the thinkgy
-            $('.submit-comment-button').data(
-                'postid', $('.modalTrigger').data("postid"));
-            populateComments($('.modalTrigger').data("postid"));
+            $(".comment-group").empty();
+            currentModalPostId=event.target.id;
+            populateComments(currentModalPostId);
 
         });
 
+        $('#exampleModal').on('hidden.bs.modal', function () {
+            event.preventDefault();
+            $(this).find(".form-control").empty();
+            sanitizeModal(currentModalPostId);
+        console.log("modal closed");
         
+});
+/*
+on modal close we
+*empty form
+*remove comments from modal
+*remove any id related classes from the static elements in the modal
+*set current modal id to ""
+*/
+function sanitizeModal(modalPostId){
+    //$('.submit-comment-button').removeData();
+    $(".comment-group").empty();
+    //$(".modalTrigger").removeData();
+    currentModalPostId="";
+}
+        function clearForm(){
+            $(".form-control").forEach(element =>{
+                console.log("working or na?");
+                element.empty();
+            });
+        }
     </script>
 </body>
 
