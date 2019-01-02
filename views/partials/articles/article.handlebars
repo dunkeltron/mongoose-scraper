@@ -1,11 +1,7 @@
-
-
 <div class="card-body border border-success rounded">
-    
-    <a class="no-gutters card-title " href='{{link}}' target="_blank">{{title}}</a>
-    <div class="col-8">
-        <a class="card-text">Posted to {{subreddit}}</a>
-    </div>
-    <button type="button" class="btn btn-success " data-toggle="modal" data-target="#exampleModal">Leave a Comment</button>
+    <a class="no-gutters card-title" href={{link}} target="_blank">{{title}}</a>
+    <div class="col-8 clearfix">
+        <a class="card-text">Posted to {{subreddit}}</a></div>
+    <button class="btn btn-success modalTrigger" type="button" data-toggle="modal" data-target="#exampleModal" id={{_id}}>Leave
+        a Comment!</button>
 </div>
-

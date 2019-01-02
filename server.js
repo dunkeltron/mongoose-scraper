@@ -24,16 +24,26 @@ var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines
 //connect mongoose with mongodb
 mongoose.connect(MONGODB_URI);
 
+//set up handlebars
+var handlebars = require("express-handlebars");
+
+//set the engine to handlebars and set the default page to main.handlebars
+app.engine("handlebars", handlebars({defaultLayout: "main"}));
+
+//set view engine to handlebars
+app.set("view engine","handlebars");
+
 // Use morgan logger for logging requests
 app.use(logger("dev"));
 // Parse request body as JSON
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 // Make public a static folder
-app.use(express.static("public"));
+app.use(express.static("./public"));
 
 //routes
 require("./routes/apiRoutes.js")(app,axios,cheerio);
+require("./routes/htmlRoutes.js")(app,axios,cheerio);
 
 app.listen(PORT, function() {
   console.log("App running on port " + PORT + "!");

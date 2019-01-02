@@ -124,8 +124,10 @@ module.exports = function (app, axios, cheerio) {
 
             console.log(articlesList);
         }).then(function (data) {
-
-            res.send("Scrape Complete");
+            var handlebarsObject = {
+                articles : data
+            }
+            res.send("index", handlebarsObject);
         });
 
 
