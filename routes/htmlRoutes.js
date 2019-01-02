@@ -1,9 +1,16 @@
-//var db = require("../models");
+var db = require("../models");
 
 module.exports = function (app, axios, cheerio) {
-    app.get("/", function (req, res) {
-        var handlebarsObject= req.data;
-        res.render("index", handlebarsObject);
+    console.log("html loaded");
+    var handlebarsObject= {};
+    app.get("/",function (req,res){
+        db.Post.find({})
+            .then(function (data) {
+                handlebarsObject = {
+                    articles : data
+                };
+                res.render("index",handlebarsObject);
+            });
     })
-
+ 
 }

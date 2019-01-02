@@ -122,12 +122,11 @@ module.exports = function (app, axios, cheerio) {
             });
 
 
-            console.log(articlesList);
         }).then(function (data) {
             var handlebarsObject = {
                 articles : data
             }
-            res.send("index", handlebarsObject);
+            res.send(handlebarsObject);
         });
 
 
@@ -143,19 +142,14 @@ module.exports = function (app, axios, cheerio) {
             return res.status(200).send(response);
         });
     });
-    //subreddit and post age
-    //_1poyrkZ7g36PawDueRza-J whole post div
-    //  s1ssr92a-0 hKePuf top bar post
-    //      .children("cZPZhMe-UCZ8htPodMyJ5")  container div of subreddit location
-    //      .children("_3AStxql1mQsrZuUIFP9xSg") div of subreddit info
-    //          .children("s1i3ufq7-0 bsfRLa").text()   subredditlocation
-    //          .children("_3jOxDPIQ0KaOWpzvSQo-1s").text() post age
-
-    //
-    //title and href
-    /*
-    .SQnoC3ObvgnGjWt90zD9Z title div
-    .attr("href"); link
-    .children("h2").text(); title
-    */
+    app.delete("/posts/:id",function(req,res){
+        db.Post.findByIdAndRemove(req.params.id,(err, todo)=>{
+            if(err) res.status(500).send(err);
+            const response = {
+                message: "Todo successfully deleted",
+                id:todo._id
+            };
+            return res.status(200).send(response);
+        });
+    });
 }
