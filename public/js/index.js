@@ -41,8 +41,8 @@ $(function(){
        }
        //attachs a comment to the modal 
        function addCommentToModal(element) {
-           var comment = $("<div>").text(element.title);
-           var body = $("<div>").text(element.body).addClass("float-left");
+           var comment = $("<div>").text(element.title).addClass("comment-title");
+           var body = $("<div>").text(element.body).addClass("float-left comment-body");
            var removeButton = $("<button>").attr({
                "type": "button",
                "class": "close",
@@ -76,8 +76,6 @@ $(function(){
                method: "GET",
                url: "/scrape"
            }).then(function (data) {
-               // For each one
-               //console.log("data returned " + data);
                window.location.href = "/";
                
 
