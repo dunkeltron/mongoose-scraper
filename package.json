@@ -17,11 +17,11 @@
   },
   "homepage": "https://github.com/dunkeltron/mongoose-scraper#readme",
   "dependencies": {
-    "axios": "^0.18.0",
-    "cheerio": "^1.0.0-rc.2",
-    "express": "^4.16.4",
-    "express-handlebars": "^3.0.0",
-    "mongoose": "^5.4.0",
-    "morgan": "^1.9.1"
+    "axios": "^0.21.1",
+    "cheerio": "^1.0.0-rc.9",
+    "express": "^4.17.1",
+    "express-handlebars": "^3.1.0",
+    "mongoose": "^5.12.7",
+    "morgan": "^1.10.0"
   }
 }
