@@ -3,24 +3,70 @@ var db = require("../models");
 module.exports = function (app, axios, cheerio) {
     //get routes
     app.get("/posts", function (req, res) {
-        console.log("test");
+        db.Post.find({})
+            .then(function (data) {
+                res.json(data);
+            });
     })
-
+    app.get("/populated/:id", function(req, res) {
+        // Using our Post model, "find" a Post in our db and populate it with any associated comments
+        db.Post.find({_id : req.params.id})
+          // Specify that we want to populate the retrieved posts with any associated comments
+          .populate("comments")
+          .then(function(dbPost) {
+            // If any posts are found, send them to the client with any associated comments
+            res.json(dbPost);
+          })
+          .catch(function(err) {
+            // If an error occurs, send it back to the client
+            res.json(err);
+          });
+      });
+      app.get("/comments/:id",function(req,res){
+          db.Comment.find({_id : req.params.id}).then(function(dbComment){
+              console.log(dbComment);
+              res.json(dbComment);
+          })
+          .catch(function(err){
+              res.json(err);
+          });
+      });
     //post routes
-    app.post("/submit", function (req, res) {
-        // Create a new user using req.body
-        User.create(req.body)
-            .then(function (dbUser) {
-                // If saved successfully, send the the new User document to the client
-                res.json(dbUser);
+    //submit new comment and associate it with correct post.
+    app.post("/submit", function(req, res) {
+        var newComment={};
+        db.Comment.create({ title: req.body.title, body: req.body.body})
+          .then(function(dbComment) {
+              newComment=dbComment;
+            // If a Comment was created successfully, find one Post (there's only one) and push the new Comment's _id to the Post's `Comments` array
+            // { new: true } tells the query that we want it to return the updated Post -- it returns the original by default
+            // Since our mongoose query returns a promise, we can chain another `.then` which receives the result of the query
+            db.Post.findOneAndUpdate({_id:req.body.postId}, { $push: { comments: dbComment._id } }, { new: true }).then(function(){
+            });
+            
+          })
+          .then(function(dbComment) {
+            // If the Post was updated successfully, send the comment back to the client
+            res.json(newComment);
+          })
+          .catch(function(err) {
+            // If an error occurs, send it back to the client
+            res.json(err);
+          });
+      });
+    app.post("/post", function (req, res) {
+        db.Post.create(req.body)
+            .then(function (dbPost) {
+                // View the added result in the console
+                console.log(dbPost);
             })
             .catch(function (err) {
-                // If an error occurs, send the error to the client
-                res.json(err);
+                // If an error occurred, log it
+                console.log(err);
             });
     });
     //put routes
-    
+
     //scrape route
     app.get("/scrape", function (req, res) {
         var articlesList = [];
@@ -31,7 +77,7 @@ module.exports = function (app, axios, cheerio) {
 
             // Now, we grab every h2 within an article tag, and do the following:
             $("._1poyrkZ7g36PawDueRza-J ").each(function (i, element) {
-                
+
                 //create a new result object for each element found
                 var result = {};
                 //text posts and image posts have different structures and msut be handled differently
@@ -65,41 +111,45 @@ module.exports = function (app, axios, cheerio) {
                 }
                 // result.postAge = topBarInfo.children("._3jOxDPIQ0KaOWpzvSQo-1s").text();
                 //push articlesList
-                articlesList.push(result);
+                //articlesList.push(result);
                 // Create a new Article using the `result` object built from scraping
-                // db.Post.create(result)
-                //   .then(function(dbPost) {
-                //     // View the added result in the console
-                //     console.log(dbPost);
-                //   })
-                //   .catch(function(err) {
-                //     // If an error occurred, log it
-                //     console.log(err);
-                //   });
+                db.Post.create(result)
+                    .catch(function (err) {
+                        // If an error occurred, log it
+                        console.log(err);
+                    });
+
             });
 
-        
-            console.log(articlesList);
-        }).then(function(data){
-            
-            res.json(articlesList);
-        });
-        
-        
-    });
-    //subreddit and post age
-//_1poyrkZ7g36PawDueRza-J whole post div
-//  s1ssr92a-0 hKePuf top bar post
-//      .children("cZPZhMe-UCZ8htPodMyJ5")  container div of subreddit location
-//      .children("_3AStxql1mQsrZuUIFP9xSg") div of subreddit info
-//          .children("s1i3ufq7-0 bsfRLa").text()   subredditlocation
-//          .children("_3jOxDPIQ0KaOWpzvSQo-1s").text() post age
 
-//
-//title and href
-/*
-.SQnoC3ObvgnGjWt90zD9Z title div
-.attr("href"); link
-.children("h2").text(); title
-*/
+        }).then(function (data) {
+            var handlebarsObject = {
+                articles : data
+            }
+            res.send(handlebarsObject);
+        });
+
+
+    });
+    //delete Route
+    app.delete("/comments/:id",function(req,res){
+        db.Comment.findByIdAndRemove(req.params.id,(err, todo)=>{
+            if(err) res.status(500).send(err);
+            const response = {
+                message: "Todo successfully deleted",
+                id:todo._id
+            };
+            return res.status(200).send(response);
+        });
+    });
+    app.delete("/posts/:id",function(req,res){
+        db.Post.findByIdAndRemove(req.params.id,(err, todo)=>{
+            if(err) res.status(500).send(err);
+            const response = {
+                message: "Todo successfully deleted",
+                id:todo._id
+            };
+            return res.status(200).send(response);
+        });
+    });
 }
